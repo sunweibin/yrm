@@ -3,7 +3,7 @@
 
 [![NPM version][npm-image]][npm-url]
 
-`yrm`可以帮助你很容易地添加、删除、查询、切换所有的Yarn Registries,目前内置`npm`,`taobao`,`yarn`三个源
+`yrm`可以帮助你轻松地添加、删除、查询、切换所有的Yarn Registries,目前内置`npm`,`taobao`,`yarn`三个源
 
 ## Install
 
@@ -13,7 +13,7 @@ $ npm install -g @sunweibin/yrm
 
 ## Example
 
-列出所有的Registry
+列出所有Registry
 ```
 $ yrm ls
 
