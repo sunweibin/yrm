@@ -111,7 +111,7 @@ function getAllYarnRegisties() {
 function getCurrentRegistry(cbk) {
   execCommand(yarn.get, (err, current) => {
     if (err) return;
-    cbk(current);
+    cbk(convertEnd(current));
   });
 }
 
@@ -120,12 +120,11 @@ function showList() {
     const info = [''];
     // 获取所有的yarn源包括预定义和用户自定义的
     const allRegistries = getAllYarnRegisties();
-    console.log('1111> allRegistries > ', JSON.stringify(allRegistries));
     // 循环遍历所有的源
     const allRegistriesKeys = Object.keys(allRegistries);
     allRegistriesKeys.forEach((key) => {
       const item = allRegistries[key];
-      const prefix = isSameRegistry(item.registry, cur) ? '* ' : '  ';
+      const prefix = isSame(item.registry, cur) ? '* ' : '  ';
       info.push(prefix + key + line(key, 8) + item.registry);
     });
     info.push('');
@@ -138,7 +137,7 @@ function showCurrent() {
     const allRegistries = getAllYarnRegisties();
     Object.keys(allRegistries).forEach(function (key) {
       const item = allRegistries[key];
-      if (isSameRegistry(item.registry, cur)) {
+      if (isSame(item.registry, cur)) {
         printMsg([key]);
         return;
       }
@@ -167,7 +166,7 @@ function onDel(name) {
   };
   getCurrentRegistry((cur) => {
     // 删除之后需要指定一个yarn的源
-    if (cur === customRegistries[name].registry) {
+    if (isSame(cur, customRegistries[name].registry)) {
       onUse('yarn');
     }
     delete customRegistries[name];
@@ -279,7 +278,15 @@ function replaceName(msg, name) {
  * @param {String} one registry源地址字符串
  * @param {String} other registry源地址字符串
  */
-function isSameRegistry(one, other) {
+function isSame(one, other) {
   const reg = /\//g;
   return one.replace(reg, '') === other.replace(reg, '');
+}
+
+/**
+ * 将行末尾的换行符号转换
+ * @param {String} str 需要转化的字符串
+ */
+function convertEnd(str) {
+  return str.replace(/\r|\n/g, '');
 }
