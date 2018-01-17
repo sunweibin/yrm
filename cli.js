@@ -1,23 +1,34 @@
 #!/usr/bin/env node
 
 // node的路径包
-var path = require('path');
+const path = require('path');
 // node的文件系统包
-var fs = require('fs');
+const fs = require('fs');
 // 用来添加命令行的工具包
-var cmd = require('commander');
-var yarn = require('yarn');
-var ini = require('ini');
-var echo = require('node-echo');
-var extend = require('extend');
-var open = require('open');
-var async = require('async');
-var request = require('request');
-var only = require('only');
+const cmd = require('commander');
+// node的子进程
+const childProcess = require('child_process');
+const extend = require('extend');
 
-var registries = require('./registries.json');
-var pkg = require('./package.json');
-var yrmrc = path.join(process.env.HOME, '.yrmrc');
+const registries = require('./registries.json');
+const pkg = require('./package.json');
+const yrmrc = path.join(process.env.HOME, '.yrmrc');
+
+// yarn的命令行字符串对象
+const yarn = {
+  get: 'yarn config get registry',
+  set: 'yarn config set registry',
+};
+
+// 使用命令行后的提示信息集合
+const message = {
+  hasRegistry: 'You have add [name] registry',
+  notFound: 'Not find registry: [name]',
+  useRegistry: 'Your registry has been set to: [name]',
+  delRegistry: 'delete registry [name] success',
+  addRegistry: 'add registry [name] success',
+  customer: 'You can only delete customRegistry',
+};
 
 // yrm的版本号
 cmd.version(pkg.version);
@@ -74,7 +85,7 @@ if (process.argv.length === 2) {
  * 输出命令行帮助信息
  */
 function cmdOutputHelp() {
-  program.outputHelp();
+  cmd.outputHelp();
 }
 
 /**
@@ -82,7 +93,7 @@ function cmdOutputHelp() {
  * 用户自定义的源写在.yrmrc配置文件中
  */
 function getCustomRegistry() {
-  return fs.existsSync(yrmrc) ? ini.parse(fs.readFileSync(yrmrc, 'utf-8')) : {};
+  return fs.existsSync(yrmrc) ? JSON.parse(fs.readFileSync(yrmrc, 'utf-8')) : {};
 }
 
 /**
@@ -98,23 +109,25 @@ function getAllYarnRegisties() {
  * @param {Function} cbk 回调函数
  */
 function getCurrentRegistry(cbk) {
-  yarn.load(function (err, conf) {
-    if (err) return exit(err);
-    cbk(yarn.config.get('registry'));
+  execCommand(yarn.get, (err, current) => {
+    if (err) return;
+    cbk(current);
   });
 }
 
 function showList() {
-  getCurrentRegistry(function (cur) {
-    var info = [''];
-    var allRegistries = getAllYarnRegisties();
-
-    Object.keys(allRegistries).forEach(function (key) {
-      var item = allRegistries[key];
-      var prefix = item.registry === cur ? '* ' : '  ';
+  getCurrentRegistry((cur) => {
+    const info = [''];
+    // 获取所有的yarn源包括预定义和用户自定义的
+    const allRegistries = getAllYarnRegisties();
+    console.log('1111> allRegistries > ', JSON.stringify(allRegistries));
+    // 循环遍历所有的源
+    const allRegistriesKeys = Object.keys(allRegistries);
+    allRegistriesKeys.forEach((key) => {
+      const item = allRegistries[key];
+      const prefix = isSameRegistry(item.registry, cur) ? '* ' : '  ';
       info.push(prefix + key + line(key, 8) + item.registry);
     });
-
     info.push('');
     printMsg(info);
   });
@@ -122,10 +135,10 @@ function showList() {
 
 function showCurrent() {
   getCurrentRegistry(function (cur) {
-    var allRegistries = getAllYarnRegisties();
+    const allRegistries = getAllYarnRegisties();
     Object.keys(allRegistries).forEach(function (key) {
-      var item = allRegistries[key];
-      if (item.registry === cur) {
+      const item = allRegistries[key];
+      if (isSameRegistry(item.registry, cur)) {
         printMsg([key]);
         return;
       }
@@ -134,65 +147,57 @@ function showCurrent() {
 }
 
 function onUse(name) {
-  var allRegistries = getAllYarnRegisties();
+  const allRegistries = getAllYarnRegisties();
   if (allRegistries.hasOwnProperty(name)) {
-    var registry = allRegistries[name];
-    yarn.load(function (err) {
+    const registry = allRegistries[name];
+    execCommand(`${yarn.set} ${registry.registry}`, (err, out) => {
       if (err) return exit(err);
-      yarn.commands.config(['set', 'registry', registry.registry], function (err, data) {
-        if (err) return exit(err);
-        console.log('                        ');
-        var newR = yarn.config.get('registry');
-        printMsg([
-          '', '   Registry has been set to: ' + newR, ''
-        ]);
-      })
+      getCurrentRegistry((current) => printMsg(replaceName(message.useRegistry, current)));
     });
   } else {
-    printMsg([
-      '', '   Not find registry: ' + name, ''
-    ]);
+    printMsg(replaceName(message.notFound, name));
   }
 }
 
 function onDel(name) {
-  var customRegistries = getCustomRegistry();
+  const customRegistries = getCustomRegistry();
   if (!customRegistries.hasOwnProperty(name)) {
-    printMsg(['你只能删除自定义的yarn源，不能删除预定义的yarn源']);
+    printMsg(message.customer);
+    return;
   };
-  getCurrentRegistry(function (cur) {
+  getCurrentRegistry((cur) => {
+    // 删除之后需要指定一个yarn的源
     if (cur === customRegistries[name].registry) {
       onUse('yarn');
     }
     delete customRegistries[name];
     setCustomRegistry(customRegistries, function (err) {
       if (err) return exit(err);
-      printMsg([
-        '', '    delete registry ' + name + ' success', ''
-      ]);
+      printMsg(replaceName(message.delRegistry, name));
     });
   });
 }
 
 function onAdd(name, url, home) {
-  var customRegistries = getCustomRegistry();
-  if (customRegistries.hasOwnProperty(name)) return;
-  var config = customRegistries[name] = {};
-  if (url[url.length - 1] !== '/') url += '/'; // ensure url end with /
+  const customRegistries = getCustomRegistry();
+  if (customRegistries.hasOwnProperty(name)) {
+    printMsg(replaceName(message.hasRegistry, name));
+    return;
+  }
+  const config = customRegistries[name] = {};
+  if (!endWithslash(url)) url += '/';
   config.registry = url;
   if (home) {
     config.home = home;
   }
   setCustomRegistry(customRegistries, function (err) {
     if (err) return exit(err);
-    printMsg([
-      '', '    add registry ' + name + ' success', ''
-    ]);
+    printMsg(replaceName(message.addRegistry, name));
   });
 }
 
 function setCustomRegistry(config, cbk) {
-  echo(ini.stringify(config), '>', yrmrc, cbk);
+  fs.writeFile(yrmrc, JSON.stringify(config), cbk);
 }
 
 function onHelp() {
@@ -206,6 +211,15 @@ function onHelp() {
 ///////////////////////////
 
 /**
+ * 执行命令行
+ * @param {String} command 所需要执行的命令行字符串
+ * @param {Function} cbk 回调函数
+ */
+function execCommand(command, cbk) {
+  childProcess.exec(command, cbk);
+}
+
+/**
  * 输出错误信息
  */
 function printErr(err) {
@@ -216,9 +230,13 @@ function printErr(err) {
  * 输出普通信息
  */
 function printMsg(infos) {
-  infos.forEach(function (info) {
-    console.log(info);
-  });
+  // 判断info是否是数组
+  const msgIsArray = Array.isArray(infos);
+  if (msgIsArray) {
+    infos.forEach((info) => console.log(info));
+  } else {
+    console.log(infos);
+  }
 }
 
 /**
@@ -229,7 +247,39 @@ function exit(error) {
   process.exit(1);
 }
 
-function line(str, len) {
-  var line = new Array(Math.max(1, len - str.length)).join('-');
+/**
+ * 显示registry的时候的字符串格式
+ * @param {String} str registry的key
+ * @param {Number} len 包含key字符串的总体长度
+ */
+function line(str, len = 8) {
+  const line = new Array(Math.max(1, len - str.length)).join('-');
   return ' ' + line + ' ';
+}
+
+/**
+ * 检测用户输入的registry是否以"/"结尾
+ * @param {String} url 用户输入的registry
+ */
+function endWithslash(url) {
+  return /\/$/.test(url);
+}
+
+/**
+ * 替换字符串
+ * @param {String} msg 需要替换的信息字符串
+ * @param {String} name 替换的信息
+ */
+function replaceName(msg, name) {
+  return msg.replace(/\[name\]/g, name);
+}
+
+/**
+ * 比对两个Registry源地址字符串是否一样
+ * @param {String} one registry源地址字符串
+ * @param {String} other registry源地址字符串
+ */
+function isSameRegistry(one, other) {
+  const reg = /\//g;
+  return one.replace(reg, '') === other.replace(reg, '');
 }
