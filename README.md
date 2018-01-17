@@ -3,7 +3,7 @@
 
 [![NPM version][npm-image]][npm-url]
 
-`yrm`可以帮助你轻松地添加、删除、查询、切换所有的Yarn Registries,目前内置`npm`,`taobao`,`yarn`三个源
+`yrm`可以帮助你轻松地添加、删除、查询、切换所有的Yarn Registries,目前内置`npm`,`taobao`,`yarn`三个源
 
 ## Install
 
