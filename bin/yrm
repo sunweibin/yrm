@@ -1,0 +1,57 @@
+#!/usr/bin/env node
+
+// 用来添加命令行的工具包
+const cmd = require('commander');
+
+const pkg = require('../package.json');
+const showList = require('../lib/showList');
+const showCurrent = require('../lib/showCurrent');
+const useRegistry = require('../lib/useRegistry');
+const addRegistry = require('../lib/addRegistry');
+const delRegistry = require('../lib/delRegistry');
+
+// yrm的版本号
+cmd.version(pkg.version);
+
+// 列出所有的yarn的源
+cmd
+  .command('list')
+  .alias('ls')
+  .description('列出所有的yarn源')
+  .action(showList);
+
+// 输出当前的源
+cmd
+  .command('now')
+  .description('当前使用的源')
+  .action(showCurrent);
+
+// 切换当前的yarn源
+cmd
+  .command('use <registry>')
+  .description('切换当前的源')
+  .action(useRegistry);
+
+// 添加yarn源
+cmd
+  .command('add <registry> <url> [home]')
+  .description('添加yarn源')
+  .action(addRegistry);
+
+// 删除yarn源
+cmd
+  .command('del <registry>')
+  .description('删除yarn源')
+  .action(delRegistry);
+
+// 打印yrm的帮助信息
+cmd
+  .command('help')
+  .description('打印出yrm的命令帮助信息')
+  .action(() => cmd.outputHelp());
+
+cmd.parse(process.argv);
+// 如果用户直接敲命令 yrm 弹出 help 信息
+if (process.argv.length === 2) {
+  cmd.outputHelp();
+}

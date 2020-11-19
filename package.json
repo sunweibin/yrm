@@ -1,8 +1,9 @@
 {
   "name": "@sunweibin/yrm",
-  "version": "1.0.14",
-  "main": "index.js",
-  "bin": "./cli.js",
+  "version": "1.1.0",
+  "bin": {
+    "yrm": "./bin/yrm"
+  },
   "description": "yarn registry manager can help you easy and fast switch between different yarn registries, now include: yarn, tabao, npm",
   "repository": {
     "type": "git",
@@ -19,7 +20,8 @@
   "homepage": "https://github.com/sunweibin/yrm",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^4.1.0",
     "commander": "^2.13.0",
-    "extend": "^3.0.1"
+    "inquirer": "^6.2.0"
   }
 }

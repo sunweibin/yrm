@@ -16,32 +16,50 @@ $ npm install -g @sunweibin/yrm
 列出所有Registry
 ```
 $ yrm ls
+或者
+$ yrm list
 
-* npm -----  https://registry.npmjs.org/
-  taobao --  https://registry.npm.taobao.org/
-  yarn ----  https://registry.yarnpkg.com/
+* npm     -  https://registry.npmjs.org/
+  taobao  -  https://registry.npm.taobao.org/
+  yarn    -  https://registry.yarnpkg.com/
+
+```
+列出当前正在使用的源
+```
+$ yrm now
+
+  [yarn](https://registry.yarnpkg.com/)
 
 ```
 切换源
 ```
-$ yrm use yarn  //switch registry to cnpm
+$ yrm use yarn
 
-    Registry has been set to: https://registry.yarnpkg.com/
+  Your registry has been set to:
+
+   [npm](https://registry.npmjs.org/)
 
 ```
 
 添加源
 ```
-$ yrm add cnpm http://r.cnpmjs.org/
+$ yrm add swb https://registry.npmjs.org/ https://www.npmjs.org
 
-add registry swb success
+You have added swb successfully!
+
+   [swb](https://registry.npmjs.org/)
 ```
 
 删除源
 ```
 $ yrm del swb
 
-delete registry swb success
+// 如果删除的并不是正在使用的，显示下面提示
+You have deleted swb successfully!
+// 如果删除的是正在使用的Registry,则附带显示下面设置默认的Registry
+Your registry has been set to:
+
+   [yarn](https://registry.yarnpkg.com/)
 ```
 
 ## Usage
@@ -60,8 +78,8 @@ Usage: yrm [options] [command]
 
   Commands:
 
-    ls                           列出所有的yarn源
-    current                      当前的yarn源
+    list|ls                      列出所有的yarn源
+    now                          当前使用的源
     use <registry>               切换当前的源
     add <registry> <url> [home]  添加yarn源
     del <registry>               删除yarn源
