@@ -28,19 +28,20 @@ cmd
 
 // 切换当前的yarn源
 cmd
-  .command('use <registry>')
+  .command('use <name>')
+  .option('-n, --no-npm', '不修改npm的源')
   .description('切换当前的源')
   .action(useRegistry);
 
 // 添加yarn源
 cmd
-  .command('add <registry> <url> [home]')
+  .command('add <name> <registry> [home]')
   .description('添加yarn源')
   .action(addRegistry);
 
 // 删除yarn源
 cmd
-  .command('del <registry>')
+  .command('del <name>')
   .description('删除yarn源')
   .action(delRegistry);
 

@@ -37,8 +37,24 @@ $ yrm use yarn
 
   Your registry has been set to:
 
-   [npm](https://registry.npmjs.org/)
+Current Yarn Registry:
+   [taobao](https://registry.npm.taobao.org/)
 
+Current NPM Registry:
+   https://registry.npm.taobao.org/
+
+```
+只切换Yarn的源，而不切换Npm的源
+```
+$ yrm use yarn
+
+  Your registry has been set to:
+
+Current Yarn Registry:
+   [taobao](https://registry.npm.taobao.org/)
+
+Current NPM Registry:
+   https://registry.npm.taobao.org/
 ```
 
 添加源
@@ -78,12 +94,16 @@ Usage: yrm [options] [command]
 
   Commands:
 
-    list|ls                      列出所有的yarn源
-    now                          当前使用的源
-    use <registry>               切换当前的源
-    add <registry> <url> [home]  添加yarn源
-    del <registry>               删除yarn源
-    help                         打印出yrm的命令帮助信息
+    list|ls                       列出所有的yarn源
+    now                           当前使用的源
+    use [options] <name>          切换当前的源
+
+        Options:
+        -n, --no-npm  不修改npm的源
+
+    add <name> <registry> [home]  添加yarn源
+    del <name>                    删除yarn源
+    help                          打印出yrm的命令帮助信息
 ```
 
 ## Registries
