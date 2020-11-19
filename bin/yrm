@@ -23,13 +23,14 @@ cmd
 // 输出当前的源
 cmd
   .command('now')
-  .description('当前使用的源')
+  .option('-n, --npm', '同步显示npm的源')
+  .description('显示当前使用的源')
   .action(showCurrent);
 
 // 切换当前的yarn源
 cmd
   .command('use <name>')
-  .option('-n, --no-npm', '不修改npm的源')
+  .option('-n, --npm', '同时切换npm的源')
   .description('切换当前的源')
   .action(useRegistry);
 
@@ -42,7 +43,8 @@ cmd
 // 删除yarn源
 cmd
   .command('del <name>')
-  .description('删除yarn源')
+  .option('-n, --npm', '如果需要修改当前源，同步修改npm的源')
+  .description('删除yarn源,当删除的源正在使用时会指定 yarn 的官方源')
   .action(delRegistry);
 
 // 打印yrm的帮助信息

@@ -24,37 +24,17 @@ $ yrm list
   yarn    -  https://registry.yarnpkg.com/
 
 ```
-列出当前正在使用的源
+
+列出当前正在使用的源`(-n, --npm 同步显示npm使用的源)`
 ```
 $ yrm now
-
-  [yarn](https://registry.yarnpkg.com/)
-
+// 或者
+$ yrm use now -n
 ```
-切换源
-```
-$ yrm use yarn
 
-  Your registry has been set to:
-
-Current Yarn Registry:
-   [taobao](https://registry.npm.taobao.org/)
-
-Current NPM Registry:
-   https://registry.npm.taobao.org/
-
-```
-只切换Yarn的源，而不切换Npm的源
+切换源`(-n, --npm 同时切换npm的源)`
 ```
 $ yrm use yarn
-
-  Your registry has been set to:
-
-Current Yarn Registry:
-   [taobao](https://registry.npm.taobao.org/)
-
-Current NPM Registry:
-   https://registry.npm.taobao.org/
 ```
 
 添加源
@@ -66,16 +46,10 @@ You have added swb successfully!
    [swb](https://registry.npmjs.org/)
 ```
 
-删除源
+删除源`(-n, --npm 如果需要修改当前源，同步修改npm的源)`
+> 当删除的源正在使用时会指定 yarn 的官方源
 ```
 $ yrm del swb
-
-// 如果删除的并不是正在使用的，显示下面提示
-You have deleted swb successfully!
-// 如果删除的是正在使用的Registry,则附带显示下面设置默认的Registry
-Your registry has been set to:
-
-   [yarn](https://registry.yarnpkg.com/)
 ```
 
 ## Usage
@@ -95,14 +69,10 @@ Usage: yrm [options] [command]
   Commands:
 
     list|ls                       列出所有的yarn源
-    now                           当前使用的源
+    now [options]                 显示当前使用的源
     use [options] <name>          切换当前的源
-
-        Options:
-        -n, --no-npm  不修改npm的源
-
     add <name> <registry> [home]  添加yarn源
-    del <name>                    删除yarn源
+    del [options] <name>          删除yarn源,当删除的源正在使用时会指定 yarn 的官方源
     help                          打印出yrm的命令帮助信息
 ```
 
