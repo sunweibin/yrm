@@ -4,8 +4,8 @@
       "registry": "https://registry.npmjs.org/"
   },
   "taobao": {
-      "home": "https://npm.taobao.org",
-      "registry": "https://registry.npm.taobao.org/"
+      "home": "https://npmmirror.com",
+      "registry": "https://registry.npmmirror.com/"
   },
   "yarn": {
     "home": "https://yarnpkg.com",
