@@ -20,7 +20,7 @@ $ yrm ls
 $ yrm list
 
 * npm     -  https://registry.npmjs.org/
-  taobao  -  https://registry.npm.taobao.org/
+  cnpm    -  https://registry.npmmirror.com/
   yarn    -  https://registry.yarnpkg.com/
 
 ```
@@ -78,8 +78,8 @@ Usage: yrm [options] [command]
 
 ## Registries
 
-* [npm](https://www.npmjs.org)
-* [taobao](http://npm.taobao.org/)
+* [npm](https://registry.npmjs.org/)
+* [cnpm](https://registry.npmmirror.com/)
 * [yarn](https://registry.yarnpkg.com/)
 
 ## LICENSE
