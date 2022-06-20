@@ -9,6 +9,7 @@ const showCurrent = require('../lib/showCurrent');
 const useRegistry = require('../lib/useRegistry');
 const addRegistry = require('../lib/addRegistry');
 const delRegistry = require('../lib/delRegistry');
+const setRegistry = require('../lib/setRegistry');
 
 // yrm的版本号
 cmd.version(pkg.version);
@@ -46,6 +47,12 @@ cmd
   .option('-n, --npm', '如果需要修改当前源，同步修改npm的源')
   .description('删除yarn源,当删除的源正在使用时会指定 yarn 的官方源')
   .action(delRegistry);
+
+// 给其他包管理器设置源，比如 npm, pnpm
+cmd
+  .command('set <package-manager-name> <registry-name>')
+  .description('给其他包管理器设置 registry ')
+  .action(setRegistry)
 
 // 打印yrm的帮助信息
 cmd
