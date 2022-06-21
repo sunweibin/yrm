@@ -18,40 +18,37 @@ cmd.version(pkg.version);
 cmd
   .command('list')
   .alias('ls')
-  .description('列出所有的yarn源')
+  .description('列出所添加的包管理器镜像源，高亮的为 yarn 当前使用的镜像源')
   .action(showList);
 
 // 输出当前的源
 cmd
-  .command('now')
-  .option('-n, --npm', '同步显示npm的源')
-  .description('显示当前使用的源')
+  .command('now [packageManagerName]')
+  .description('显示包管理器当前使用的镜像源, 默认显示 yarn 使用的镜像源, 可以查看比如:npm, pnpm配置的镜像源')
   .action(showCurrent);
 
 // 切换当前的yarn源
 cmd
-  .command('use <name>')
-  .option('-n, --npm', '同时切换npm的源')
-  .description('切换当前的源')
+  .command('use <registry-name>')
+  .description('切换 yarn 的当前镜像源')
   .action(useRegistry);
 
 // 添加yarn源
 cmd
   .command('add <name> <registry> [home]')
-  .description('添加yarn源')
+  .description('添加镜像源管理')
   .action(addRegistry);
 
 // 删除yarn源
 cmd
   .command('del <name>')
-  .option('-n, --npm', '如果需要修改当前源，同步修改npm的源')
-  .description('删除yarn源,当删除的源正在使用时会指定 yarn 的官方源')
+  .description('删除指定的镜像源，当删除的源正在使用时会指定 yarn 的官方源')
   .action(delRegistry);
 
 // 给其他包管理器设置源，比如 npm, pnpm
 cmd
   .command('set <package-manager-name> <registry-name>')
-  .description('给其他包管理器设置 registry ')
+  .description('给其他包管理器设置 registry 例如: npm, pnpm ')
   .action(setRegistry)
 
 // 打印yrm的帮助信息
